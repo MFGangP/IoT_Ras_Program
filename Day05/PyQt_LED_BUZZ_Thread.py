@@ -90,7 +90,6 @@ class Ui_Form(QWidget):
                 BUZZ_State = 1
                 buzz = BUZZ_Thread()
                 buzz.buzzStateChanged.connect(self.updateBuzzState)
-                buzz.finished.connect(buzz.deleteLater)
                 buzz.start()
             elif BUZZ_State == 1:
                 BUZZ_State = 0
@@ -109,16 +108,18 @@ class BUZZ_Thread(QThread):
         GPIO.setup(BUZZ_Pin, GPIO.OUT) # Buzzer=25
 
         buzz = GPIO.PWM(BUZZ_Pin, 440)
-        global BUZZ_State
-        if BUZZ_State == 1:
-            self.buzzStateChanged.emit("ON")
-            while BUZZ_State == 1:
-                buzz.start(50)
+        buzz.start(50)
+
+        while True:
+            global BUZZ_State
+            if BUZZ_State == 1:
+                self.buzzStateChanged.emit("ON")
                 buzz.ChangeFrequency(1000)
                 time.sleep(0.1)
-            BUZZ_State = 0
-        else:
-            buzz.stop()
+            else:
+                self.buzzStateChanged.emit("OFF")
+                buzz.stop()
+                break
 
     def __del__(self):
         self.wait()
