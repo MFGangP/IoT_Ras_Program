@@ -93,7 +93,9 @@ class Ui_Form(QWidget):
                 buzz = BUZZ_Thread()
                 buzz.buzzStateChanged.connect(self.updateBuzzState)
                 buzz.start()
- 
+            else:
+                BUZZ_State = 0
+
     def updateBuzzState(self, state):
         self.Lbl_BUZZ.setText(f"BUZZ_State : {state}")
 
