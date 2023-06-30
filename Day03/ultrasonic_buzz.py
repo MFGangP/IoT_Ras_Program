@@ -50,4 +50,4 @@ try:
 
 except KeyboardInterrupt:
     GPIO.cleanup()
-    Print("bye~")
+    print("bye~")
