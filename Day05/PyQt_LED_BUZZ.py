@@ -86,23 +86,21 @@ class Ui_Form(QWidget):
                 self.Lbl_LED.setText("LED_State : OFF")
 
         elif btnName == "Btn_buzz":
+            global BUZZ_State
+
             if(BUZZ_State == 0):
-                buzz = BUZZ_Thread(self.Btn_buzz)
+                BUZZ_State = 1
+                buzz = BUZZ_Thread()
                 buzz.buzzStateChanged.connect(self.updateBuzzState)
                 buzz.start()
-
+ 
     def updateBuzzState(self, state):
         self.Lbl_BUZZ.setText(f"BUZZ_State : {state}")
 
 class BUZZ_Thread(QThread):
     buzzStateChanged = pyqtSignal(str)
 
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-
     def run(self):
-
         BUZZ_Pin = 25
 
         GPIO.setmode(GPIO.BCM)
@@ -110,17 +108,14 @@ class BUZZ_Thread(QThread):
         GPIO.setup(BUZZ_Pin, GPIO.OUT) # Buzzer=25
 
         buzz = GPIO.PWM(BUZZ_Pin, 440)
-        global BUZZ_State
-        if(BUZZ_State==0):
+        if(BUZZ_State==1):
             buzz.start(50)
             buzz.ChangeFrequency(1000)
-            BUZZ_State = 1
-            self.Lbl_BUZZ.setText("BUZZ_State : ON")
+            self.buzzStateChanged.emit("ON")
 
-        else:
+        elif(BUZZ_State==0):
             buzz.stop()
-            BUZZ_State = 0
-            self.Lbl_BUZZ.setText("BUZZ_State : OFF")   
+            self.buzzStateChanged.emit("OFF") 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
